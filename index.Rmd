@@ -1,0 +1,88 @@
+---
+title       : Week 4 assignment
+subtitle    : Shiny
+author      : Hennie de Nooijer
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained    # {standalone, draft, selfcontained}
+knit        : slidify::knit2slides
+---
+
+## Description assignment
+In this assignment the graph is made dynamic by selecting the number of cylinders with checkboxes.
+
+The app can be accessed at https://yellowdolphin.shinyapps.io/MyShinyApp/
+
+---
+## Servercode
+
+This is the server code :
+
+```{r}
+library(shiny)
+
+
+# Define server logic required to draw a histogram
+shinyServer(function(input, output) {
+   
+  output$distPlot <- renderPlot({
+    
+textOutput(input$fourcyl)
+    # generate bins based on input$bins from ui.R
+    NumberofCyl<- ifelse(input$fourcyl, 4, ifelse(input$sixcyl,6, 8 ))
+    textOutput(input$fourcyl)
+    filtermtcars <- mtcars[mtcars$cyl==NumberofCyl, ]
+    x    <- filtermtcars[, 5] 
+    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+    
+    # draw the histogram with the specified number of bins
+   hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    
+  })
+  
+})
+```
+
+---
+## UI code
+
+This is the ui code code
+
+```{r}
+library(shiny)
+
+# Define UI for application that draws a histogram
+shinyUI(fluidPage(
+  
+  # Application title
+  titlePanel("A shiny app about mtcars"),
+  
+  
+  # Sidebar with a slider input for number of bins 
+  sidebarLayout(
+    sidebarPanel(
+      h1("Move the slider!"),
+       sliderInput("bins",
+                   "Number of bins:",
+                   min = 1,
+                   max = 50,
+                   value = 30),
+       checkboxInput("fourcyl", "4 cylinders", value = TRUE),
+       checkboxInput("sixcyl", " 6 cylinders", value = TRUE),
+       checkboxInput("eightcyl", "8 cylinders", value = TRUE)
+       ),
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+       plotOutput("distPlot")
+    )
+  )
+))
+
+
+
+```
+
